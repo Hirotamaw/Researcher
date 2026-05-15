@@ -1,0 +1,29 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: APIキーを注入してHTMLをビルド
+        run: |
+          mkdir -p dist
+          sed "s|__GEMINI_API_KEY__|${{ secrets.GEMINI_API_KEY }}|g" src/index.html > dist/index.html
+
+      - name: GitHub Pages にデプロイ
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
